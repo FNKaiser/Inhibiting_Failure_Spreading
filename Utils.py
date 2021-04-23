@@ -230,7 +230,7 @@ def calc_flow_ratio(H,F,G):
             edges_distance_d_F = [i for i in edges_in_F_indices if edge_distance_uw[i]==d]
             ### calculate the absolute ration of mean flows at this distance, if there are links in G and F at the given distance
             if len(edges_distance_d_G) and len(edges_distance_d_F):
-                flow_ratio.append(np.round(np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index])))/np.round(np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index]))))
+                flow_ratio.append(np.round(np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index])),decimals = 12)/np.round(np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index])),decimals = 12))
                 distances.append(d)
     ### Iterate over all possible trigger links in F
     for trigger_index in edges_in_F_indices:
@@ -245,7 +245,7 @@ def calc_flow_ratio(H,F,G):
             edges_distance_d_F = [i for i in edges_in_F_indices if edge_distance_uw[i]==d]
             ### calculate the absolute ration of mean flows at this distance, if there are links in G and F at the given distance
             if len(edges_distance_d_G) and len(edges_distance_d_F):
-                flow_ratio.append((np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index]))/np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index]))))
+                flow_ratio.append(np.round(np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index])),decimals = 12)/np.round(np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index])),decimals = 12))
                 distances.append(d)
     distances = np.array(distances)
     flow_ratio = np.array(flow_ratio)
@@ -313,9 +313,9 @@ def calc_flow_ratio_single_link(H,F,G,trigger_link):
         ### calculate the absolute ratio of mean flows at this distance, if there are links in G and F at the given distance
         if len(edges_distance_d_G) and len(edges_distance_d_F):
             if trigger_module == 'G':
-                flow_ratio.append(np.round(np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index])))/np.round(np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index]))))
+                flow_ratio.append(np.round(np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index])),decimals = 12)/np.round(np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index])),decimals = 12))
             elif trigger_module == 'F':
-                flow_ratio.append(np.round(np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index])))/np.round(np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index]))))
+                flow_ratio.append(np.round(np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index])),decimals = 12)/np.round(np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index])),decimals = 12))
             distances.append(d)
             
     distances = np.array(distances)
