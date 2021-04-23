@@ -54,7 +54,7 @@ def PTDF_matrix(G,I=np.array([])):
     if not I.size:
         I = nx.incidence_matrix(G,oriented=True).A
 
-    edges = [(list(G.nodes()).index(e[0]),list(G.nodes()).index(e[1])) for e in list(G.edges())]
+    edges = [(list(G.nodes()).index(u),list(G.nodes()).index(v)) for u,v in G.edges()]
     line_weights = np.array([B[e] for e in edges])
     B_d = -np.diag(line_weights)
     #multi_dot is supposed to find the most efficient way of performing the matrix multiplication
@@ -210,8 +210,8 @@ def calc_flow_ratio(H,F,G):
     
     
     ### get the indices of all edges in F and in G
-    edges_in_G_indices = [redefined_index(list_of_tuples=list(H.edges()),element=list(G.edges())[i]) for i in range(len(G.edges()))]
-    edges_in_F_indices = [redefined_index(list_of_tuples=list(H.edges()),element=list(F.edges())[i]) for i in range(len(F.edges()))]
+    edges_in_G_indices = [redefined_index(list_of_tuples=list(H.edges()),element=e) for e in G.edges()]
+    edges_in_F_indices = [redefined_index(list_of_tuples=list(H.edges()),element=e) for e in F.edges()]
     
     ### calculate PTDF matrix for the given graph
     PTDF = PTDF_matrix(H)
@@ -222,7 +222,7 @@ def calc_flow_ratio(H,F,G):
         trigger_link = list(H.edges())[trigger_index]
 
         ### calculate distance from trigger link to all possible other links
-        edge_distance_uw = [shortest_edge_distance(G=H,e1=list(H.edges())[i],e2=trigger_link,weighted=False) for i in range(len(H.edges()))]
+        edge_distance_uw = [shortest_edge_distance(G = H,e1 = e,e2 = trigger_link,weighted = False) for e in H.edges()]
         max_dist = np.max(edge_distance_uw)
         for d in np.arange(1,max_dist):
             ### get all edges at a distance d to the trigger link
@@ -230,14 +230,14 @@ def calc_flow_ratio(H,F,G):
             edges_distance_d_F = [i for i in edges_in_F_indices if edge_distance_uw[i]==d]
             ### calculate the absolute ration of mean flows at this distance, if there are links in G and F at the given distance
             if len(edges_distance_d_G) and len(edges_distance_d_F):
-                flow_ratio.append(np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index]))/np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index])))
+                flow_ratio.append(np.round(np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index])))/np.round(np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index]))))
                 distances.append(d)
     ### Iterate over all possible trigger links in F
     for trigger_index in edges_in_F_indices:
         trigger_link = list(H.edges())[trigger_index]
         
         ### calculate distance from trigger link to all possible other links
-        edge_distance_uw = [shortest_edge_distance(G=H,e1=list(H.edges())[i],e2=trigger_link,weighted=False) for i in range(len(H.edges()))]
+        edge_distance_uw = [shortest_edge_distance(G = H,e1 = e,e2 = trigger_link,weighted = False) for e in H.edges()]
         max_dist = np.max(edge_distance_uw)
         for d in np.arange(1,max_dist):
             ### get all edges at a distance d to the trigger link
@@ -277,14 +277,7 @@ def calc_flow_ratio_single_link(H,F,G,trigger_link):
     assert isinstance(F,nx.Graph)
     assert isinstance(G,nx.Graph)
     assert isinstance(trigger_link,tuple)
-    
-    ### get the indices of all edges in F and in G
-    edges_in_G_indices = [redefined_index(list_of_tuples=list(H.edges()),element=list(G.edges())[i]) for i in range(len(G.edges()))]
-    edges_in_F_indices = [redefined_index(list_of_tuples=list(H.edges()),element=list(F.edges())[i]) for i in range(len(F.edges()))]
-    
-    ### calculate PTDF matrix for the given graph
-    PTDF = PTDF_matrix(H)
-    
+        
     ### Check if link is located in module G or module F
     trigger_module = ''
     if G.has_edge(*trigger_link):
@@ -295,8 +288,17 @@ def calc_flow_ratio_single_link(H,F,G,trigger_link):
         print('Error, edge ' + str(trigger_link) + 'neither located in subgraph G, nor in subgraph F')
         return 
         
+    
+    ### get the indices of all edges in F and in G
+    edges_in_G_indices = [redefined_index(list_of_tuples = list(H.edges()),element = e) for e in G.edges()]
+    edges_in_F_indices = [redefined_index(list_of_tuples = list(H.edges()),element = e) for e in F.edges()]
+    
+    ### calculate PTDF matrix for the given graph
+    PTDF = PTDF_matrix(H)
+    
+
     ### calculate distance from trigger link to all possible other links
-    edge_distance_uw = [shortest_edge_distance(G=H,e1=list(H.edges())[i],e2=trigger_link,weighted=False) for i in range(len(H.edges()))]
+    edge_distance_uw = [shortest_edge_distance(G = H,e1 = e,e2 = trigger_link,weighted = False) for e in H.edges()]
     max_dist = np.max(edge_distance_uw)
     
     flow_ratio = []
@@ -311,9 +313,9 @@ def calc_flow_ratio_single_link(H,F,G,trigger_link):
         ### calculate the absolute ratio of mean flows at this distance, if there are links in G and F at the given distance
         if len(edges_distance_d_G) and len(edges_distance_d_F):
             if trigger_module == 'G':
-                flow_ratio.append(np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index]))/np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index])))
+                flow_ratio.append(np.round(np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index])))/np.round(np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index]))))
             elif trigger_module == 'F':
-                flow_ratio.append(np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index]))/np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index])))
+                flow_ratio.append(np.round(np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index])))/np.round(np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index]))))
             distances.append(d)
             
     distances = np.array(distances)
