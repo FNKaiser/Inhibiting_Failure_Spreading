@@ -289,8 +289,8 @@ def calc_flow_ratio_single_link(H,F,G,trigger_link):
     trigger_module = ''
     if G.has_edge(*trigger_link):
         trigger_module = 'G'
-    elif H.has_edge(*trigger_link):
-        trigger_module = 'H'
+    elif F.has_edge(*trigger_link):
+        trigger_module = 'F'
     else:
         print('Error, edge ' + str(trigger_link) + 'neither located in subgraph G, nor in subgraph F')
         return 
@@ -301,13 +301,14 @@ def calc_flow_ratio_single_link(H,F,G,trigger_link):
     
     flow_ratio = []
     distances = []
-    
+   
+    trigger_index = redefined_index(list(H.edges()),trigger_link)
+
     for d in np.arange(1,max_dist):
-        trigger_index = redefined_index(list(H.edges()),trigger_link)
         ### get all edges at a distance d to the trigger link
         edges_distance_d_G = [i for i in edges_in_G_indices if edge_distance_uw[i]==d]
         edges_distance_d_F = [i for i in edges_in_F_indices if edge_distance_uw[i]==d]
-        ### calculate the absolute ration of mean flows at this distance, if there are links in G and F at the given distance
+        ### calculate the absolute ratio of mean flows at this distance, if there are links in G and F at the given distance
         if len(edges_distance_d_G) and len(edges_distance_d_F):
             if trigger_module == 'G':
                 flow_ratio.append(np.mean(np.abs(PTDF[edges_distance_d_F,trigger_index]))/np.mean(np.abs(PTDF[edges_distance_d_G,trigger_index])))
@@ -398,31 +399,3 @@ def perturb_isolator(H,alpha,base_vectors):
     
     coherence_statistics = 1 - calc_min_norm(basis_weights)
     return H, coherence_statistics
-
-
-
-#################################################################################################################################
-############################## Following functions are for Simulating Kuramoto dynamics
-
-def second_order_kuramoto(v,t,K,w,A,alphas):
-    """ set up the Second Order Kuramoto equations on a network 
-    
-    v : numpy array of length 2*N containing angles in the first half of the entries and their derivatives in the second half
-    t: array of times steps
-    K: numpy array of length N containing the coupling constants
-    w: numpy array of length N containing the natural frequencies
-    A: numpy array of size number_of_edges*number_of_edges containing the oriented incidence matrix
-    alphas: numpy array of size N containing the friction constants
-    
-    returns: numpy array of length 2*N containing angles in the first half of the entries and their derivatives in the second half
-    """
-    
-    N = int(len(v)/2)
-    v_new = np.zeros(len(v))
-    frequencies = v[N:]
-    angles = v[:N]
-    sines = np.sin(np.dot(A.T,angles))
-    sines[np.where(np.abs(sines)<1e-14)]=0.0
-    v_new[:N] = frequencies
-    v_new[N:] = -alphas*frequencies + w -np.dot(A,K*sines)
-    return v_new
