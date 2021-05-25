@@ -21,4 +21,4 @@ The code is written in *python* and makes use of *numpy, scipy* and *networkx*.
    Citation
    </h4>
 F. Kaiser, V. Latora, and D. Witthaut, Network Isolators inhibit failure spreading in complex networks, Nature Communications 12, 3143,
-[doi:10.1038/s41467-021-23292-9](http://dx.doi.org/10.1038/s41467-021-23292-9)
+[10.1038/s41467-021-23292-9](http://dx.doi.org/10.1038/s41467-021-23292-9)
