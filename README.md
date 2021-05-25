@@ -16,6 +16,7 @@ It serves to analyse failure spreading in networks that contain network isolator
 
 The code is written in *python* and makes use of *numpy, scipy* and *networkx*.
 
+A small working example can be found in [the howto file](./Howto.py).
 
 <h4>
    Citation
